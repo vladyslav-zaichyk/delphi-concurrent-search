@@ -1,35 +1,41 @@
 package vz.concurrent_search;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
-public class Searcher implements Runnable {
-    private final int startIndex;
-    private final int endIndex;
+public class Searcher {
     private final int searchedElement;
     private final int replacingElement;
-    private final List<Integer> list;
+    private final int poolSize;
+    private final List<Integer> elementsList;
 
-    public Searcher(int startIndex, int endIndex, int searchedElement, int replacingElement, List<Integer> list) {
-        this.startIndex = startIndex;
-        this.endIndex = endIndex;
+    public Searcher(int searchedElement, int replacingElement, int poolSize, List<Integer> elementsList) {
         this.searchedElement = searchedElement;
         this.replacingElement = replacingElement;
-        this.list = list;
+        this.poolSize = poolSize;
+        this.elementsList = elementsList;
     }
 
-    @Override
-    public void run() {
-        search();
-    }
+    public int search() {
+        ExecutorService executor = Executors.newFixedThreadPool(poolSize);
+        List<Future<Integer>> futureCounts = new ArrayList<>(poolSize);
+        int elementsPerThread = elementsList.size() / poolSize;
 
-    private synchronized int search() {
-        int count = 0;
-        for (int i = startIndex; i < endIndex; i++) {
-            if (list.get(i) == searchedElement) {
-                list.set(i, replacingElement);
-                count++;
-            }
+        for (int i = 0; i < poolSize; i++) {
+            int startIndex = i * elementsPerThread;
+            int endIndex = (i + 1) * elementsPerThread;
+            futureCounts.add(executor.submit(new SearchThread(startIndex, endIndex, searchedElement, replacingElement, elementsList)));
         }
-        return count;
+
+        return futureCounts.stream().mapToInt(future -> {
+            try {
+                return future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            return 0;
+        }).sum();
     }
+
 }
