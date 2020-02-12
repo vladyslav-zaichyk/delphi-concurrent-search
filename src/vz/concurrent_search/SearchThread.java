@@ -8,29 +8,26 @@ public class SearchThread implements Callable<Integer> {
     private final int endIndex;
     private final int searchedElement;
     private final int replacingElement;
-    private final List<Integer> elementsList;
+    private final List<Integer> elements;
 
-    public SearchThread(int startIndex, int endIndex, int searchedElement, int replacingElement, List<Integer> list) {
+    SearchThread(int startIndex, int endIndex, int searchedElement, int replacingElement, List<Integer> list) {
         this.startIndex = startIndex;
         this.endIndex = endIndex;
         this.searchedElement = searchedElement;
         this.replacingElement = replacingElement;
-        this.elementsList = list;
+        this.elements = list;
     }
 
     @Override
-    public Integer call() throws Exception {
-        try {
-            int count = 0;
-            for (int i = startIndex; i < endIndex; i++) {
-                if (elementsList.get(i) == searchedElement) {
-                    elementsList.set(i, replacingElement);
-                    count++;
-                }
+    public Integer call() {
+        System.out.printf("%s started\n", Thread.currentThread().getName());
+        int count = 0;
+        for (int i = startIndex; i < endIndex; i++) {
+            if (elements.get(i) == searchedElement) {
+                elements.set(i, replacingElement);
+                count++;
             }
-            return count;
-        } finally {
-
         }
+        return count;
     }
 }

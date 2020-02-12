@@ -4,37 +4,41 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Spawner implements Runnable {
-    private final static int MIN_ELEMENT = 0;
-    private final static int MAX_ELEMENT = 100;
-    private final static int MIN_AMOUNT_OF_ELEMENTS = 10_000;
-    private final static int MAX_AMOUNT_OF_ELEMENTS = 1_00_000;
-    private final List<Integer> list;
+    private final int minElement;
+    private final int maxElement;
+    private final int minAmountOfElements;
+    private final int maxAmountOfElements;
+    private final List<Integer> elements;
 
-    public Spawner(List<Integer> list) {
-        this.list = list;
+    Spawner(int minElement, int maxElement, int minAmountOfElements, int maxAmountOfElements, List<Integer> elements) {
+        this.minElement = minElement;
+        this.maxElement = maxElement;
+        this.minAmountOfElements = minAmountOfElements;
+        this.maxAmountOfElements = maxAmountOfElements;
+        this.elements = elements;
     }
 
     @Override
     public void run() {
-        spawn(ThreadLocalRandom.current().nextInt(MIN_AMOUNT_OF_ELEMENTS, MAX_AMOUNT_OF_ELEMENTS));
+        spawn(ThreadLocalRandom.current().nextInt(minAmountOfElements, maxAmountOfElements));
     }
 
     public void spawn(int count) {
         long startTime = System.currentTimeMillis();
-        System.out.printf("Spawning %s elements start\n", count);
-        if (list.isEmpty()) {
-            list.add(randomElement());
+        System.out.printf("%s spawning %s elements start\n", Thread.currentThread().getName(), count);
+        if (elements.isEmpty()) {
+            elements.add(randomElement());
             count--;
         }
         while (count > 0) {
-            list.add(ThreadLocalRandom.current().nextInt(0, list.size()), randomElement());
+            elements.add(ThreadLocalRandom.current().nextInt(0, elements.size()), randomElement());
             count--;
         }
         long finishTime = System.currentTimeMillis();
-        System.out.printf("Spawning end. Time: %s. List size: %s\n\n", finishTime - startTime, list.size());
+        System.out.printf("Spawning end. Time: %s. List size: %s\n\n", finishTime - startTime, elements.size());
     }
 
     private int randomElement() {
-        return ThreadLocalRandom.current().nextInt(MIN_ELEMENT, MAX_ELEMENT + 1);
+        return ThreadLocalRandom.current().nextInt(minElement, maxElement + 1);
     }
 }
