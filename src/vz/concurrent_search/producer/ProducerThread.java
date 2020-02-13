@@ -41,7 +41,7 @@ public class ProducerThread implements Runnable {
         }
 
         System.out.printf("%s: items were produced. Size = %s\n", Thread.currentThread().getName(), items.size());
-        locker.writeLock().lock();
+        locker.writeLock().unlock();
         System.out.printf("%s: write unlock\n", Thread.currentThread().getName());
     }
 

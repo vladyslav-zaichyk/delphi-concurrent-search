@@ -5,14 +5,12 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.ReadWriteLock;
 
 public class SearcherService {
-    private final ReadWriteLock locker;
     private final int searchedItem;
     private final int replaceItem;
     private final int poolSize;
     private final List<Integer> items;
 
     public SearcherService(ReadWriteLock locker, int searchedItem, int replaceItem, int poolSize, List<Integer> items) {
-        this.locker = locker;
         this.searchedItem = searchedItem;
         this.replaceItem = replaceItem;
         this.poolSize = poolSize;
@@ -23,7 +21,7 @@ public class SearcherService {
         ExecutorService executor = Executors.newFixedThreadPool(poolSize);
         CompletionService<Integer> searchCompletionService = new ExecutorCompletionService<>(executor);
         int elementsPerThread = items.size() / poolSize;
-        locker.readLock().lock();
+
         for (int i = 0; i < poolSize; i++) {
             int startIndex = i * elementsPerThread;
             int endIndex = ((i + 1) * elementsPerThread) - 1;
@@ -43,7 +41,6 @@ public class SearcherService {
                 e.printStackTrace();
             }
         }
-        locker.readLock().unlock();
         executor.shutdown();
         return result;
     }

@@ -28,6 +28,7 @@ public class SizeChangedListenerThread extends Thread {
                 System.out.printf("%s: size of items has been changed\n", Thread.currentThread().getName());
                 System.out.printf("%s: read lock\n", Thread.currentThread().getName());
                 listener.onSizeChanged();
+                oldSize = newSize;
                 System.out.printf("%s: read unlock\n", Thread.currentThread().getName());
             }
             locker.readLock().unlock();
