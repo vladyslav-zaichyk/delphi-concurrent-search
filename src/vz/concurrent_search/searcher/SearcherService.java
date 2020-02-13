@@ -1,30 +1,34 @@
-package vz.concurrent_search;
+package vz.concurrent_search.searcher;
 
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReadWriteLock;
 
-public class Searcher {
-    private final int searchedElement;
-    private final int replacingElement;
+public class SearcherService {
+    private final ReadWriteLock locker;
+    private final int searchedItem;
+    private final int replaceItem;
     private final int poolSize;
-    private final List<Integer> elements;
+    private final List<Integer> items;
 
-    Searcher(int searchedElement, int replacingElement, int poolSize, List<Integer> elements) {
-        this.searchedElement = searchedElement;
-        this.replacingElement = replacingElement;
+    public SearcherService(ReadWriteLock locker, int searchedItem, int replaceItem, int poolSize, List<Integer> items) {
+        this.locker = locker;
+        this.searchedItem = searchedItem;
+        this.replaceItem = replaceItem;
         this.poolSize = poolSize;
-        this.elements = elements;
+        this.items = items;
     }
 
     public int search() {
+        locker.readLock().lock();
         ExecutorService executor = Executors.newFixedThreadPool(poolSize);
         CompletionService<Integer> searchCompletionService = new ExecutorCompletionService<>(executor);
-        int elementsPerThread = elements.size() / poolSize;
+        int elementsPerThread = items.size() / poolSize;
 
         for (int i = 0; i < poolSize; i++) {
             int startIndex = i * elementsPerThread;
             int endIndex = ((i + 1) * elementsPerThread) - 1;
-            searchCompletionService.submit(new SearchThread(startIndex, endIndex, searchedElement, replacingElement, elements));
+            searchCompletionService.submit(new SearcherThread(startIndex, endIndex, searchedItem, replaceItem, items));
         }
 
         int result = 0;
@@ -35,13 +39,12 @@ public class Searcher {
             try {
                 result += searchCompletionService.take().get();
                 receivedResults++;
-                System.out.printf("result: %s, received results: %s\n", result, receivedResults);
             } catch (InterruptedException | ExecutionException e) {
                 error = true;
                 e.printStackTrace();
             }
         }
-
+        locker.readLock().unlock();
         return result;
     }
 }
