@@ -27,7 +27,10 @@ public class ProducerThread implements Runnable {
     }
 
     public void produce(int count) {
+        System.out.printf("%s: start producing %s items\n", Thread.currentThread().getName(), count);
         locker.writeLock().lock();
+        System.out.printf("%s: write lock\n", Thread.currentThread().getName());
+
         if (items.isEmpty()) {
             items.add(generateRandomElement());
             count--;
@@ -36,7 +39,10 @@ public class ProducerThread implements Runnable {
             items.add(ThreadLocalRandom.current().nextInt(0, items.size()), generateRandomElement());
             count--;
         }
+
+        System.out.printf("%s: items were produced. Size = %s\n", Thread.currentThread().getName(), items.size());
         locker.writeLock().lock();
+        System.out.printf("%s: write unlock\n", Thread.currentThread().getName());
     }
 
     private int generateRandomElement() {

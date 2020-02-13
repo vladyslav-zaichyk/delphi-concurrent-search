@@ -22,12 +22,15 @@ public class SizeChangedListenerThread extends Thread {
     @Override
     public void run() {
         while (true) {
+            locker.readLock().lock();
             int newSize = items.size();
             if (newSize != oldSize) {
-                locker.readLock().lock();
+                System.out.printf("%s: size of items has been changed\n", Thread.currentThread().getName());
+                System.out.printf("%s: read lock\n", Thread.currentThread().getName());
                 listener.onSizeChanged();
-                locker.readLock().unlock();
+                System.out.printf("%s: read unlock\n", Thread.currentThread().getName());
             }
+            locker.readLock().unlock();
         }
     }
 }

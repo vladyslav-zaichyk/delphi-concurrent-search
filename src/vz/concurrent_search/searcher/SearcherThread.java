@@ -20,6 +20,7 @@ public class SearcherThread implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        System.out.printf("%s: start searching for %s; range(%s, %s)\n", Thread.currentThread().getName(), searchedItem, startIndex, endIndex);
         int count = 0;
         for (int i = startIndex; i < endIndex; i++) {
             if (items.get(i) == searchedItem) {
@@ -27,6 +28,7 @@ public class SearcherThread implements Callable<Integer> {
                 count++;
             }
         }
+        System.out.printf("%s: found %s items\n", Thread.currentThread().getName(), count);
         return count;
     }
 }

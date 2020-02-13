@@ -21,7 +21,7 @@ public class ConcurrentSearch {
     private final int avaibleProccesors = Runtime.getRuntime().availableProcessors();
     private final ReadWriteLock locker = new ReentrantReadWriteLock();
 
-    private List<Integer> items = new CopyOnWriteArrayList<>();
+    private volatile List<Integer> items = new CopyOnWriteArrayList<>();
 
     public void start() {
         SizeChangedListenerThread listenerThread = new SizeChangedListenerThread(locker, items);

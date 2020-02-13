@@ -20,11 +20,10 @@ public class SearcherService {
     }
 
     public int search() {
-        locker.readLock().lock();
         ExecutorService executor = Executors.newFixedThreadPool(poolSize);
         CompletionService<Integer> searchCompletionService = new ExecutorCompletionService<>(executor);
         int elementsPerThread = items.size() / poolSize;
-
+        locker.readLock().lock();
         for (int i = 0; i < poolSize; i++) {
             int startIndex = i * elementsPerThread;
             int endIndex = ((i + 1) * elementsPerThread) - 1;
@@ -45,6 +44,7 @@ public class SearcherService {
             }
         }
         locker.readLock().unlock();
+        executor.shutdown();
         return result;
     }
 }
