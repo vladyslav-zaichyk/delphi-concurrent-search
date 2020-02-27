@@ -2,8 +2,11 @@ package vz.concurrent_search.searcher;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 public class FindAndReplaceTask<T> implements Callable<Long> {
+    private final static Logger LOGGER = Logger.getLogger(FindAndReplaceTask.class.getName());
+
     private final T searched;
     private final T replacer;
     private final List<T> list;
@@ -16,6 +19,9 @@ public class FindAndReplaceTask<T> implements Callable<Long> {
 
     @Override
     public Long call() {
+        LOGGER.info(String.format("%s: start find and replace task",
+                Thread.currentThread().getName()));
+
         return list.stream()
                 .filter(value -> value.equals(searched))
                 .map(value -> value = replacer)

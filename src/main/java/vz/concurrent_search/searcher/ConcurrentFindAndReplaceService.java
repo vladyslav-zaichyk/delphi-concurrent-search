@@ -3,9 +3,12 @@ package vz.concurrent_search.searcher;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 public class ConcurrentFindAndReplaceService<T> {
+    private final static Logger LOGGER = Logger.getLogger(ConcurrentFindAndReplaceService.class.getName());
+
     private final ReadWriteLock locker;
 
     public ConcurrentFindAndReplaceService(ReadWriteLock locker) {
@@ -30,10 +33,17 @@ public class ConcurrentFindAndReplaceService<T> {
         while (receivedResults < threadPoolSize) {
             itemsFound += receiveCompletionServiceResult(searchCompletionService);
             receivedResults++;
+
+            LOGGER.info(String.format("%s: %s tasks finished",
+                    Thread.currentThread().getName(), receivedResults));
         }
 
         locker.readLock().unlock();
         executor.shutdown();
+
+        LOGGER.info(String.format("%s: %s items have been found and replaced",
+                Thread.currentThread().getName(), itemsFound));
+
         return itemsFound;
     }
 

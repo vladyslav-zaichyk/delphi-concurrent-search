@@ -1,6 +1,6 @@
 package vz.concurrent_search;
 
-import vz.concurrent_search.listener.ListSizeChangeListenerThread;
+import vz.concurrent_search.listener.ValueChangeListenerThread;
 import vz.concurrent_search.producer.IntegerProducerTask;
 import vz.concurrent_search.searcher.ConcurrentFindAndReplaceService;
 
@@ -27,7 +27,8 @@ public class ConcurrentSearch implements Runnable {
 
         ConcurrentFindAndReplaceService<Integer> searcher = new ConcurrentFindAndReplaceService<>(locker);
 
-        ListSizeChangeListenerThread listenerThread = new ListSizeChangeListenerThread(locker, numbersList,
+        ValueChangeListenerThread listenerThread = new ValueChangeListenerThread(locker,
+                () -> numbersList.size(),
                 () -> searcher.findAndReplace(SEARCHED_NUMBER, REPLACE_NUMBER, numbersList, poolSize));
         listenerThread.start();
     }
