@@ -32,7 +32,6 @@ public class ValueChangeListenerThread extends Thread {
                 onSizeChangeAction.run();
                 oldValue = valueSupplier.get();
             }
-
             locker.readLock().unlock();
         }
     }

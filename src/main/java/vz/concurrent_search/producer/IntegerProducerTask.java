@@ -11,19 +11,22 @@ import java.util.stream.Stream;
 public class IntegerProducerTask implements Runnable {
     private final static Logger LOGGER = Logger.getLogger(IntegerProducerTask.class.getName());
 
-    private final static int AMOUNT_OF_NUMBERS = 5_000;
-    private final static int MAX_VALUE = 100;
     private final ReadWriteLock locker;
     private final List<Integer> numbersList;
 
-    public IntegerProducerTask(ReadWriteLock locker, List<Integer> numbersList) {
+    private final int numbersAmount;
+    private final int maxValue;
+
+    public IntegerProducerTask(ReadWriteLock locker, List<Integer> numbersList, int numbersAmount, int maxValue) {
         this.locker = locker;
         this.numbersList = numbersList;
+        this.numbersAmount = numbersAmount;
+        this.maxValue = maxValue;
     }
 
     @Override
     public void run() {
-        produce(AMOUNT_OF_NUMBERS);
+        produce(numbersAmount);
     }
 
     public void produce(int numbersToProduce) {
@@ -34,13 +37,13 @@ public class IntegerProducerTask implements Runnable {
         LOGGER.info(String.format("%s: start integer producer task",
                 Thread.currentThread().getName()));
 
-        numbersList.addAll(Stream.generate(() -> random.nextInt(MAX_VALUE))
+        numbersList.addAll(Stream.generate(() -> random.nextInt(maxValue))
                 .limit(numbersToProduce)
                 .collect(Collectors.toList()));
         Collections.shuffle(numbersList);
 
         LOGGER.info(String.format("%s: finished generating %s numbers",
-                Thread.currentThread().getName(), AMOUNT_OF_NUMBERS));
+                Thread.currentThread().getName(), numbersAmount));
 
         locker.writeLock().unlock();
     }

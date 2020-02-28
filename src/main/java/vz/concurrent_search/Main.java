@@ -1,5 +1,7 @@
 package vz.concurrent_search;
 
+import picocli.CommandLine;
+
 public class Main {
     static {
         System.setProperty("java.util.logging.SimpleFormatter.format",
@@ -7,6 +9,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        new ConcurrentSearch().run();
+        new CommandLine(new ConcurrentSearch()).execute("-s", "-r", "-p", "-n", "-m");
     }
 }
