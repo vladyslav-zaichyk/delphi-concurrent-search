@@ -3,3 +3,4 @@
 /concurrent-search.iml
 /out
 /target
+!/.idea/runConfigurations

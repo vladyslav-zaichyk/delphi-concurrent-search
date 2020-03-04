@@ -1,6 +1,6 @@
 package vz.concurrent_search;
 
-import vz.concurrent_search.listener.ValueChangeListenerThread;
+import vz.concurrent_search.listener.ValueChangeListener;
 import vz.concurrent_search.producer.IntegerProducerTask;
 import vz.concurrent_search.searcher.ConcurrentFindAndReplaceService;
 
@@ -35,15 +35,17 @@ public class ConcurrentSearch implements Runnable {
 
     @Override
     public void run() {
-        ScheduledExecutorService producerExecutorService = Executors.newSingleThreadScheduledExecutor();
-        producerExecutorService.scheduleAtFixedRate(new IntegerProducerTask(locker, numbersList, numbersAmount, maxValue),
-                0, 5, TimeUnit.SECONDS);
+        ConcurrentFindAndReplaceService<Integer> searcher = new ConcurrentFindAndReplaceService<>(locker.readLock());
 
-        ConcurrentFindAndReplaceService<Integer> searcher = new ConcurrentFindAndReplaceService<>(locker);
-
-        ValueChangeListenerThread listenerThread = new ValueChangeListenerThread(locker,
+        ValueChangeListener listener = new ValueChangeListener(locker.readLock(),
                 () -> numbersList.size(),
                 () -> searcher.findAndReplace(searchedNumber, replaceNumber, numbersList, poolSize));
-        listenerThread.start();
+
+        ScheduledExecutorService producerExecutorService = Executors.newSingleThreadScheduledExecutor();
+        producerExecutorService.scheduleAtFixedRate(() -> {
+                    new IntegerProducerTask(locker.writeLock(), numbersList, numbersAmount, maxValue);
+                    listener.run();
+                },
+                0, 5, TimeUnit.SECONDS);
     }
 }
